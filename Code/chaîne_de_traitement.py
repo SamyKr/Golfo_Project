@@ -5,12 +5,14 @@ import glob
 from traitement import traitement, supprimer_contenu_dossier
 from pathlib import Path
 from wsl import launch_program
+
 from preparation_wsl import creer_fichier_bat
 from convert_jpgtopng import convert_jpgtopng
 from copy_results import copy_resultats
 from georef import apply_homography, extract_match_points
 from gps_image import extract_gps_from_image
 import base64
+import json 
 
 chemin_app_build_linux = "/mnt/d/Golfo_Project/wsl/build"
 chemin_app_build_windows = "wsl/build"
@@ -82,68 +84,70 @@ def serve_image():
     return jsonify({'error': 'Fichier introuvable'}), 404
 
 
+
 @app.route('/process_image', methods=['POST'])
 def process_image():
     logs = []
     results = []
 
-    images = request.form.getlist('image_path')  # Récupérer plusieurs chemins d'images
+    # Récupérer la liste des chemins d'images et leurs types
+    image_paths = request.form.get('image_data')  # Supposons que tu envoies ces informations sous 'image_data'
+    image_paths = json.loads(image_paths)  # Convertir le JSON en liste 
+
     output_folder = request.form.get('output_folder')
     dalles = request.form.get('folder')
 
-    if not images or not output_folder or not dalles:
+    if not image_paths or not output_folder or not dalles:
         logs.append("❌ Paramètres manquants pour le traitement")
         socketio.emit('log', {'message': "❌ Paramètres manquants pour le traitement"})
         return jsonify({'error': 'Paramètres manquants pour le traitement', 'logs': logs}), 400
-
-    # Appel de `supprimer_contenu_dossier` avant de commencer le traitement des images
-    #logs.append(f"🟡 Vidange du dossier de sortie ")
-    #socketio.emit('log', {'message': f"🟡 Vidange du dossier de sortie "})
-    #supprimer_contenu_dossier(output_folder)
-
-    logs.append(f"🟡 Début du traitement de {len(images)} images")
-    socketio.emit('log', {'message': f"🟡 Début du traitement de {len(images)} images"})
     
-    for i, image_path in enumerate(images, start=1):
-        image_path = image_path.split('path=', 1)[1]
-        image_output_folder = os.path.join(output_folder, str(i))  # Dossier spécifique à chaque image
+    socketio.emit('log', {'message': f"🗑️ Vidange dossier de Sortie"})
+    supprimer_contenu_dossier(output_folder)
+
+    logs.append(f"🟡 Début du traitement de {len(image_paths)} images")
+    socketio.emit('log', {'message': f"🟡 Début du traitement de {len(image_paths)} images"})
+
+    for i, image_data in enumerate(image_paths, start=1):
+        image_path = image_data['path']  # Chemin de l'image
+        image_type = image_data['type']  # "roche" ou "sable"
+
+        image_output_folder = os.path.join(output_folder, f"image_{i}")
         os.makedirs(image_output_folder, exist_ok=True)
 
-        logs.append(f"📸 Image {i} : {image_path}")
-        socketio.emit('log', {'message': f"📸 Image {i} : {image_path}"})
-        logs.append(f"📂 Dossier de sortie : {image_output_folder}")
-        socketio.emit('log', {'message': f"📂 Dossier de sortie : {image_output_folder}"})
+        logs.append(f"📸 Image {i} : {image_path} - Type: {image_type} - Progression: {i}/{len(image_paths)} ({(i/len(image_paths)*100):.2f}%)")
+        socketio.emit('log', {'message': f"📸 Image {i} : {image_path} - Type: {image_type} - Progression: {i}/{len(image_paths)} ({(i/len(image_paths)*100):.2f}%)"})
 
         try:
-            logs.append(f"🟡 Traitement de l'image {i}")
-            socketio.emit('log', {'message': f"🟡 Traitement de l'image {i}"})
+            logs.append(f"🟡 Traitement de l'image {i} de type {image_type}")
+            socketio.emit('log', {'message': f"🟡 Traitement de l'image {i} de type {image_type}..."})
             crop_png = traitement(image_path, image_output_folder, dalles)
             logs.append(f"✅ Image {i} traitée et rognée")
             socketio.emit('log', {'message': f"✅ Image {i} traitée et rognée"})
 
             logs.append(f"🟡 Conversion de l'image {i} en PNG")
-            socketio.emit('log', {'message': f"🟡 Conversion de l'image {i} en PNG"})
+            socketio.emit('log', {'message': f"🟡 Conversion de l'image {i} en PNG..."})
             image_png = convert_jpgtopng(image_path, image_output_folder)
             logs.append(f"✅ Conversion de l'image {i} terminée")
             socketio.emit('log', {'message': f"✅ Conversion de l'image {i} terminée"})
 
             logs.append(f"🟡 Création du fichier batch pour l'image {i}")
-            socketio.emit('log', {'message': f"🟡 Création du fichier batch pour l'image {i}"})
+            socketio.emit('log', {'message': f"🟡 Création du fichier batch pour l'image {i}..."})
             chemin_bat = creer_fichier_bat(image_output_folder, crop_png, image_png, chemin_app_build_linux)
             logs.append(f"✅ Fichier batch créé : {chemin_bat}")
             socketio.emit('log', {'message': f"✅ Fichier batch créé : {chemin_bat}"})
 
             logs.append(f"🟡 Lancement du programme WSL pour l'image {i}")
-            socketio.emit('log', {'message': f"🟡 Lancement du programme WSL pour l'image {i}"})
+            socketio.emit('log', {'message': f"🐧 Lancement du programme WSL pour l'image {i}..."})
             launch_program(chemin_bat)
             logs.append(f"✅ Programme lancé pour l'image {i}")
             socketio.emit('log', {'message': f"✅ Programme lancé pour l'image {i}"})
 
-            logs.append(f"🟡 Copie des résultats pour l'image {i}")
-            socketio.emit('log', {'message': f"🟡 Copie des résultats pour l'image {i}"})
+            logs.append(f"🟡 Copie des résultats pour l'image {i}...")
+            socketio.emit('log', {'message': f"📁 Copie des résultats pour l'image {i}..."})
             copy_resultats(chemin_app_build_windows, image_output_folder)
             logs.append(f"✅ Copie des résultats pour l'image {i} terminée")
-            socketio.emit('log', {'message': f"✅ Copie des résultats pour l'image {i} terminée"})
+            socketio.emit('log', {'message': f"✅ Copie des résultats pour l'image {i} terminée !"})
 
             # Vérification du fichier data_matches.csv
             match_csv = os.path.join(image_output_folder, "data_matches.csv")
@@ -166,8 +170,8 @@ def process_image():
             socketio.emit('log', {'message': f"✅ {nombre_de_points} points de correspondance trouvés pour l'image {i}"})
 
             logs.append(f"🟡 Application de l'homographie pour l'image {i}")
-            socketio.emit('log', {'message': f"🟡 Application de l'homographie pour l'image {i}"})
-            apply_homography(*extract_match_points(match_csv), query_img_path=image_path, target_img_path=crop_png, output_path=image_output_folder)
+            socketio.emit('log', {'message': f"🟡 Application de l'homographie pour l'image {i} ... (ETAPE LONGUE JUST WAIT)"})
+            apply_homography(*extract_match_points(match_csv), query_img_path=image_path, target_img_path=crop_png, output_path=image_output_folder,type=image_type)
             logs.append(f"✅ Homographie appliquée pour l'image {i}")
             socketio.emit('log', {'message': f"✅ Homographie appliquée pour l'image {i}"})
 
@@ -178,6 +182,7 @@ def process_image():
 
             results.append({
                 'image': image_path,
+                'type': image_type,  # Ajouter ici le type de l'image (roche ou sable)
                 'success': True,
                 'processed_image': processed_image_url
             })
@@ -185,9 +190,11 @@ def process_image():
         except Exception as e:
             logs.append(f"❌ Erreur sur l'image {i} : {str(e)}")
             socketio.emit('log', {'message': f"❌ Erreur sur l'image {i} : {str(e)}"})
-            results.append({'image': image_path, 'error': str(e)})
+            results.append({'image': image_path, 'type': image_type, 'error': str(e)})
 
     return jsonify({'success': True, 'results': results, 'logs': logs})
+
+
 
 
 
