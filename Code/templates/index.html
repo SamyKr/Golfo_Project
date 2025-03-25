@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golfo</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Interface de Traitement d'Images</h1>
+    <form id="uploadForm" method="POST">
+        <label>Charger une image :</label>
+        <input type="file" id="images" name="images" accept="image/*" multiple><br>
+        <label>Sélectionner un dossier :</label>
+        <input type="text" id="folder" name="folder" value="D:\dalles_ensg\dalles" placeholder="Chemin du dossier"><br>
+        <label>Sélectionner le dossier de sortie (output) :</label>
+        <input type="text" id="output_folder" name="output_folder" value="output_flask" placeholder="Chemin du dossier de sortie"><br>
+        <button type="submit">Chargement des données</button>
+    </form>
+
+
+    <div id="log"></div>
+
+    <div id="previewContainer"></div>
+
+    <img id="preview" src="" alt="Image chargée" style="max-width: 500px; display: none; margin-top: 20px;">
+
+    <!-- Nouveau bouton "Traitement" qui sera caché au départ -->
+    <button id="processBtn" style="display: none;">Lancer le traitement</button>
+
+    <script>
+    document.getElementById("uploadForm").onsubmit = async function(event) {
+        event.preventDefault();
+        let formData = new FormData();
+
+        let imageFiles = document.getElementById("images").files;
+        for (let i = 0; i < imageFiles.length; i++) {
+            formData.append("images", imageFiles[i]);  // Ajoute chaque image
+        }
+
+        formData.append("folder", document.getElementById("folder").value);
+        formData.append("output_folder", document.getElementById("output_folder").value);
+
+        let response = await fetch("/upload", { method: "POST", body: formData });
+        let result = await response.json();
+
+        document.getElementById("log").innerText = JSON.stringify(result, null, 2);
+
+        if (result.results) {
+        let previewContainer = document.getElementById("previewContainer");
+        previewContainer.innerHTML = ""; // Efface les prévisualisations précédentes
+
+        result.results.forEach(item => {
+            if (item.image_path) {
+                let img = document.createElement("img");
+                img.src = item.image_path;
+                img.style.maxWidth = "200px";
+                img.style.margin = "10px";
+                previewContainer.appendChild(img);
+            }
+        });
+
+        document.getElementById("processBtn").style.display = "inline";
+    }
+
+    };
+
+    document.getElementById("processBtn").onclick = async function() {
+        let outputFolder = document.getElementById("output_folder").value;
+        let imageElements = document.querySelectorAll("#previewContainer img");
+
+        for (let img of imageElements) {
+            let response = await fetch("/process_image", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    image_path: img.src,
+                    output_folder: outputFolder,
+                    folder: document.getElementById("folder").value
+                })
+            });
+            let result = await response.json();
+            document.getElementById("log").innerText += "\n" + result.message;
+        }
+    };
+
+
+        // Écouter les messages WebSocket et les afficher
+        const socket = io();
+        socket.on('log', function(data) {
+            document.getElementById("log").innerText += "\n" + data.message;
+        });
+
+        // Écouter l'événement 'image_ready' pour afficher l'image traitée
+        socket.on('image_ready', function(data) {
+            // Récupérer l'URL de l'image envoyée par le serveur
+            const imageUrl = data.image_url;
+            
+            // Mettre à jour la source de l'image pour afficher l'image
+            const imgElement = document.getElementById("preview");
+            imgElement.src = imageUrl;
+            imgElement.style.display = "block";  // S'assurer que l'image est visible
+        });
+
+        // Soumettre les coordonnées manuellement
+        document.getElementById("submitCoords").onclick = async function() {
+            let X_Lambert = document.getElementById("X_Lambert").value;
+            let Y_Lambert = document.getElementById("Y_Lambert").value;
+
+            // Envoyer les coordonnées au serveur pour mise à jour
+            let response = await fetch("/submit_coords", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    X_Lambert: X_Lambert,
+                    Y_Lambert: Y_Lambert
+                })
+            });
+            let result = await response.json();
+
+            // Afficher un message de confirmation
+            document.getElementById("log").innerText += "\n" + result.message;
+        };
+
+    </script>
+</body>
+</html>
