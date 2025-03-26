@@ -32,4 +32,4 @@ def traitement(image_path, output_folder, dalles):
     return png_link
 
 if __name__ == "__main__":
-    traitement("test.jpg", "output_vrai", "dalles_pleiades/ORT_2019090439472760_LA93")
+    traitement("image_hd.jpg", "output", "D:\dalles_ensg\dalles")

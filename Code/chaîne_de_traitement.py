@@ -4,18 +4,17 @@ import os
 import glob
 from traitement import traitement, supprimer_contenu_dossier
 from pathlib import Path
-from wsl import launch_program
-
-from preparation_wsl import creer_fichier_bat
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'PyASIFT')))
+from PyASIFT.asift import asift_main
 from convert_jpgtopng import convert_jpgtopng
-from copy_results import copy_resultats
 from georef import apply_homography, extract_match_points
 from gps_image import extract_gps_from_image
 import base64
 import json 
+import pandas as pd
 
-chemin_app_build_linux = "/mnt/d/Golfo_Project/wsl/build"
-chemin_app_build_windows = "wsl/build"
+
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -131,47 +130,16 @@ def process_image():
             logs.append(f"✅ Conversion de l'image {i} terminée")
             socketio.emit('log', {'message': f"✅ Conversion de l'image {i} terminée"})
 
-            logs.append(f"🟡 Création du fichier batch pour l'image {i}")
-            socketio.emit('log', {'message': f"🟡 Création du fichier batch pour l'image {i}..."})
-            chemin_bat = creer_fichier_bat(image_output_folder, crop_png, image_png, chemin_app_build_linux)
-            logs.append(f"✅ Fichier batch créé : {chemin_bat}")
-            socketio.emit('log', {'message': f"✅ Fichier batch créé : {chemin_bat}"})
+         
 
-            logs.append(f"🟡 Lancement du programme WSL pour l'image {i}")
-            socketio.emit('log', {'message': f"🐧 Lancement du programme WSL pour l'image {i}..."})
-            launch_program(chemin_bat)
-            logs.append(f"✅ Programme lancé pour l'image {i}")
-            socketio.emit('log', {'message': f"✅ Programme lancé pour l'image {i}"})
-
-            logs.append(f"🟡 Copie des résultats pour l'image {i}...")
-            socketio.emit('log', {'message': f"📁 Copie des résultats pour l'image {i}..."})
-            copy_resultats(chemin_app_build_windows, image_output_folder)
-            logs.append(f"✅ Copie des résultats pour l'image {i} terminée")
-            socketio.emit('log', {'message': f"✅ Copie des résultats pour l'image {i} terminée !"})
-
-            # Vérification du fichier data_matches.csv
-            match_csv = os.path.join(image_output_folder, "data_matches.csv")
-            if not os.path.exists(match_csv):
-                logs.append(f"❌ Erreur : data_matches.csv introuvable pour l'image {i}")
-                socketio.emit('log', {'message': f"❌ Erreur : data_matches.csv introuvable pour l'image {i}"})
-                results.append({'image': image_path, 'error': 'Fichier data_matches.csv introuvable'})
-                continue  # Passe à l'image suivante
-
-            with open(match_csv, 'r') as f:
-                data = f.readlines()
-            nombre_de_points = len(data) - 1
-            if nombre_de_points < 1:
-                logs.append(f"❌ Erreur : Pas assez de points de correspondance pour l'image {i}")
-                socketio.emit('log', {'message': f"❌ Erreur : Pas assez de points de correspondance pour l'image {i}"})
-                results.append({'image': image_path, 'error': 'Pas assez de points de correspondance'})
-                continue  # Passe à l'image suivante
-
-            logs.append(f"✅ {nombre_de_points} points de correspondance trouvés pour l'image {i}")
-            socketio.emit('log', {'message': f"✅ {nombre_de_points} points de correspondance trouvés pour l'image {i}"})
-
+            socketio.emit('log', {'message': f"🟡 Recherche points de correspondance ... "}) 
+            points_match=asift_main(crop_png, image_path, "sift-flann",image_output_folder  )
+            socketio.emit('log', {'message': f"✅ {points_match.shape[0]} points de correspondance trouvés ! "}) 
+            
+            pts_target,pts_query=extract_match_points(points_match)
             logs.append(f"🟡 Application de l'homographie pour l'image {i}")
             socketio.emit('log', {'message': f"🟡 Application de l'homographie pour l'image {i} ... (ETAPE LONGUE JUST WAIT)"})
-            apply_homography(*extract_match_points(match_csv), query_img_path=image_path, target_img_path=crop_png, output_path=image_output_folder,type=image_type)
+            apply_homography(pts_target,pts_query, query_img_path=image_path, target_img_path=crop_png, output_path=image_output_folder,type=image_type)
             logs.append(f"✅ Homographie appliquée pour l'image {i}")
             socketio.emit('log', {'message': f"✅ Homographie appliquée pour l'image {i}"})
 

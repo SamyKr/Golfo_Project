@@ -29,4 +29,4 @@ def convert_jpgtopng(image_jpg, dossier_sortie, compression_level=9):
 
 
 if __name__ =="__main__":
-    convert_jpgtopng("output_img/test.jpg", "output_img")
+    convert_jpgtopng("test_basse_def_3.jpg", "output/")

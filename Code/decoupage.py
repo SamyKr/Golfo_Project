@@ -4,7 +4,7 @@ import gps_image as gi
 
 gdal.UseExceptions()
 
-def crop_vrt(image_path, vrt_path, output_jp2, output_png, width=2500, height=2500, offset_x=200):
+def crop_vrt(image_path, vrt_path, output_jp2, output_png, width=2000, height=2000, offset_x=200):
     if not os.path.exists(image_path):
         print(f"❌ L'image spécifiée n'existe pas : {image_path}")
         return
@@ -37,7 +37,7 @@ def crop_vrt(image_path, vrt_path, output_jp2, output_png, width=2500, height=25
             yRes=1,
             warpMemoryLimit=500,
             creationOptions=[
-                "QUALITY=50",
+                "QUALITY=90",
                 "REVERSIBLE=YES",
                 "BlockXSIZE=512",
                 "BlockYSIZE=512"
