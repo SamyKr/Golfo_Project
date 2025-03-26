@@ -91,7 +91,9 @@ def apply_homography(pts_target, pts_query, query_img_path, target_img_path, out
     projection = ds.GetProjection()
     
     # Conversion des coordonnées en pixels vers coordonnées géographiques
-    points = appel_process_image(query_img_path, output_path, type)
+    #points = appel_process_image(query_img_path, output_path, type)# REMMETRE QUAND ON AURA UNE BONNE SEGMENTATION
+
+    points= [(1,2),(3,4),(5,6),(7,8)]
     points_array = np.array(points, dtype=np.float32)
     points_transformed = cv2.perspectiveTransform(points_array[None, :, :], H)[0]
     geo_points = [pixel_to_geo(pt[0], pt[1], geo_transform) for pt in points_transformed]

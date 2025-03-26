@@ -39,6 +39,8 @@ def upload():
     
     results = []
 
+    
+
     for image in images:
         image_raw = image.filename
         image_path = os.path.join(os.getcwd(), "uploads", image.filename)
@@ -96,13 +98,25 @@ def process_image():
     output_folder = request.form.get('output_folder')
     dalles = request.form.get('folder')
 
+
+    
+
     if not image_paths or not output_folder or not dalles:
         logs.append("❌ Paramètres manquants pour le traitement")
         socketio.emit('log', {'message': "❌ Paramètres manquants pour le traitement"})
         return jsonify({'error': 'Paramètres manquants pour le traitement', 'logs': logs}), 400
     
-    socketio.emit('log', {'message': f"🗑️ Vidange dossier de Sortie"})
-    supprimer_contenu_dossier(output_folder)
+
+
+    if not os.path.exists(output_folder):
+        try:
+            os.makedirs(output_folder)
+            logs.append(f"🟢 Dossier de sortie créé : {output_folder}")
+            socketio.emit('log', {'message': f"🟢 Dossier de sortie créé : {output_folder}"})
+        except Exception as e:
+            logs.append(f"❌ Erreur lors de la création du dossier de sortie : {str(e)}")
+            socketio.emit('log', {'message': f"❌ Erreur lors de la création du dossier de sortie : {str(e)}"})
+            return jsonify({'error': 'Erreur lors de la création du dossier de sortie', 'logs': logs}), 500
 
     logs.append(f"🟡 Début du traitement de {len(image_paths)} images")
     socketio.emit('log', {'message': f"🟡 Début du traitement de {len(image_paths)} images"})
@@ -131,9 +145,9 @@ def process_image():
             socketio.emit('log', {'message': f"✅ Conversion de l'image {i} terminée"})
 
          
-
+#:param detector_name: (sift|surf|orb|akaze|brisk)[-flann] Detector type to use, default as SIFT. Add '-flann' to use FLANN matching.
             socketio.emit('log', {'message': f"🟡 Recherche points de correspondance ... "}) 
-            points_match=asift_main(crop_png, image_path, "sift-flann",image_output_folder  )
+            points_match=asift_main(crop_png, image_path, "brisk",image_output_folder  )
             socketio.emit('log', {'message': f"✅ {points_match.shape[0]} points de correspondance trouvés ! "}) 
             
             pts_target,pts_query=extract_match_points(points_match)
