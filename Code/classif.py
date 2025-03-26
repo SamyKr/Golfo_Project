@@ -181,7 +181,7 @@ def process_image_roche(image_path, outpout_folder, n_segments=650000, compactne
     execution_time = (end_time - start_time) / 60
     print(f"Temps d'exécution du traitement: {execution_time:.4f} minutes.")
     
-    return contours
+    return largest_contour
 
 
 
