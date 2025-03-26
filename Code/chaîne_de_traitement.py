@@ -5,8 +5,8 @@ import glob
 from traitement import traitement, supprimer_contenu_dossier
 from pathlib import Path
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'PyASIFT')))
-from PyASIFT.asift import asift_main
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'PyASIFT_2')))
+from PyASIFT_2.asift import asift_main
 from convert_jpgtopng import convert_jpgtopng
 from georef import apply_homography, extract_match_points
 from gps_image import extract_gps_from_image

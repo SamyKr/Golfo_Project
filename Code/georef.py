@@ -8,8 +8,8 @@ from osgeo import gdal
 from shapely.geometry import LineString
 import pandas as pd
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'PyASIFT')))
-from PyASIFT.asift import asift_main
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'PyASIFT_2')))
+from PyASIFT_2.asift import asift_main
 
 
 def extract_match_points(df):
