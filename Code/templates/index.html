@@ -55,7 +55,6 @@
         let response = await fetch("/upload", { method: "POST", body: formData });
         let result = await response.json();
 
-        //document.getElementById("log").innerText = JSON.stringify(result, null, 2);
         document.getElementById("log").innerText = "Images chargées avec succès ! 🥳 \n Prêt à Traiter... 🖥️";
         scrollToBottom();  // Faire défiler en bas
 
@@ -91,21 +90,11 @@
                     sableInput.name = "image_" + index;
                     sableInput.value = "sable";
             
-                    // Option "Image déjà testée"
-                    let testeLabel = document.createElement("label");
-                    testeLabel.innerHTML = "Image déjà testée";
-                    let testeInput = document.createElement("input");
-                    testeInput.type = "radio";
-                    testeInput.name = "image_" + index;
-                    testeInput.value = "tested";
-            
                     // Ajout des éléments dans le radioContainer
                     radioContainer.appendChild(rocheLabel);
                     radioContainer.appendChild(rocheInput);
                     radioContainer.appendChild(sableLabel);
                     radioContainer.appendChild(sableInput);
-                    radioContainer.appendChild(testeLabel);
-                    radioContainer.appendChild(testeInput);
             
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(radioContainer);
