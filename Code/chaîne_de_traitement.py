@@ -147,7 +147,7 @@ def process_image():
          
 #:param detector_name: (sift|surf|orb|akaze|brisk)[-flann] Detector type to use, default as SIFT. Add '-flann' to use FLANN matching.
             socketio.emit('log', {'message': f"🟡 Recherche points de correspondance ... "}) 
-            points_match=asift_main(crop_png, image_path, "brisk",image_output_folder  )
+            points_match=asift_main(crop_png, image_path, "sift-flann",image_output_folder  )
             socketio.emit('log', {'message': f"✅ {points_match.shape[0]} points de correspondance trouvés ! "}) 
             
             pts_target,pts_query=extract_match_points(points_match)
