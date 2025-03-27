@@ -67,39 +67,52 @@
                 if (item.image_path) {
                     let imgContainer = document.createElement("div");
                     imgContainer.classList.add("image-container");
-
+            
                     let img = document.createElement("img");
                     img.src = item.image_path;
                     img.alt = "Image prévisualisée";
-
+            
                     let radioContainer = document.createElement("div");
                     radioContainer.classList.add("radio-options");
-
+            
+                    // Option "Roche"
                     let rocheLabel = document.createElement("label");
                     rocheLabel.innerHTML = "Roche";
                     let rocheInput = document.createElement("input");
                     rocheInput.type = "radio";
                     rocheInput.name = "image_" + index;
                     rocheInput.value = "roche";
-
+            
+                    // Option "Sable"
                     let sableLabel = document.createElement("label");
                     sableLabel.innerHTML = "Sable";
                     let sableInput = document.createElement("input");
                     sableInput.type = "radio";
                     sableInput.name = "image_" + index;
                     sableInput.value = "sable";
-
+            
+                    // Option "Image déjà testée"
+                    let testeLabel = document.createElement("label");
+                    testeLabel.innerHTML = "Image déjà testée";
+                    let testeInput = document.createElement("input");
+                    testeInput.type = "radio";
+                    testeInput.name = "image_" + index;
+                    testeInput.value = "tested";
+            
+                    // Ajout des éléments dans le radioContainer
                     radioContainer.appendChild(rocheLabel);
                     radioContainer.appendChild(rocheInput);
                     radioContainer.appendChild(sableLabel);
                     radioContainer.appendChild(sableInput);
-
+                    radioContainer.appendChild(testeLabel);
+                    radioContainer.appendChild(testeInput);
+            
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(radioContainer);
-
+            
                     previewContainer.appendChild(imgContainer);
                 }
-            });
+            });                      
 
             document.getElementById("processBtn").style.display = "inline";
         }
