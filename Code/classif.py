@@ -18,7 +18,7 @@ def convert_arrays_to_tuples(contours):
 
 def appel_process_image(image_path, output_folder, image_type):
     if image_type == 'roche':
-        return convert_arrays_to_tuples(process_image_roche(image_path, output_folder, n_segments=650000, compactness=10, window_size=3))
+        return convert_arrays_to_tuples(process_image_roche(image_path, output_folder, n_segments=500000, compactness=10, window_size=3))
     elif image_type == 'sable':
         return convert_arrays_to_tuples(kmeans(image_path, output_folder, n_clusters=2, n_init=15, init='k-means++', max_iter=300, tol=1e-4, min_contour_length=1000))
     else:
@@ -52,7 +52,7 @@ def remove_closed_contours(contours, threshold=5):
             filtered_contours.append(contour)
     return filtered_contours
 
-def process_image_roche(image_path, outpout_folder, n_segments=650000, compactness=10, window_size=3):
+def process_image_roche(image_path, outpout_folder, n_segments=500000, compactness=10, window_size=3):
     print("Démarrage du processus de segmentation de l'image...")
     
     start_time = time.time()
