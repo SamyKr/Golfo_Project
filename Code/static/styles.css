@@ -104,3 +104,20 @@ button:hover {
         width: 100%;
     }
 }
+
+.radio-options {
+    margin-top: 10px;
+    text-align: center; 
+    font-size: 16px;
+}
+
+.radio-options label {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.radio-options input {
+    margin-right: 10px; 
+    margin-top: 5px;
+}
