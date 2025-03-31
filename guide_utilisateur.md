@@ -57,3 +57,5 @@ Vous pouvez importer autant d'image que vous souhaiter et pour chacune :
 * Agrandir ou diminuer la taille de l'image
 * Modifier le claque de l'image
 
+  Bonne navigation et bon traitement de vos images !
+
