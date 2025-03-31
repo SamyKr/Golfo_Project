@@ -16,7 +16,7 @@ python app.py
 * **Méthode 2** : copiez le lien et collez-le dans la barre d'adresse de votre navigateur web préféré.
 
 ### Configuration des données utilisateur
-![Ouverture du terminal](frontend.png)
+![Ouverture du terminal](images/frontend.png)
 Avant de lancer le traitement, vous devez fournir trois informations essentielles :
 1.	**Insérer des images** : les images doivent contenir des coordonnées dans leurs métadonnées. Ces coordonnées doivent être au format WGS84, qui est la norme attendue pour ce type d'appareil (*1).
 2.	**Fournir le chemin vers le dossier des dalles** : nous garantissons le bon fonctionnement avec les dalles Pléiades fournies. Il est possible que certaines générations de dalles aient des versions différentes. Pour garantir un fonctionnement optimal, utilisez les dalles fournies.
@@ -29,7 +29,7 @@ Une fois ces étapes complétées, vous pouvez charger vos données. Si aucune e
 Ensuite, pour chaque image, vous pouvez choisir entre deux options :
 * **Roche** : l'algorithme roche est plus long à exécuter (environ 30 minutes par image).
 * **Sable** : l'algorithme sable est plus rapide (environ 45 secondes par image). Utilisez ces options en fonction de vos besoins et du temps disponible.
-
+![Ouverture du terminal](images/choix.png)
 ### Résultats en Sortie
 À la fin du traitement, plusieurs dossiers seront générés dans le dossier de sortie, chacun correspondant à une image traitée. Chaque dossier contient :
 * **crop.png** : portion de dalle Pléiades correspondant à l'image traitée.
