@@ -49,7 +49,7 @@ Bonne navigation et bon traitement de vos images !
 ### Partie Edition d'image
 ![Ouverture du terminal](images/edit.PNG)
 Cet outil est disponible dans la barre header en haut de l'application sous le bouton "Editeur d'images". 
-Vous pouvez importer autant d'image que vous souhaiter et pour chacune : 
+Vous pouvez importer autant d'image que vous souhaitez et pour chacune : 
 * Modifier la luminosité
 * Modifier la transparence
 * Modifier l'inclinaison horizontale et verticale
