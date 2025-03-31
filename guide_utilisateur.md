@@ -37,6 +37,7 @@ Ensuite, pour chaque image, vous pouvez choisir entre deux options :
 * **trait_de_cote.png** : image avec le trait de côte identifié en rouge par l'algorithme.
 * **keypoints.txt** : fichier contenant les points d'intérêt entre les deux images (utilisable pour d'autres méthodes d'exploration).
 * **Dossier shapefile** : contient un fichier shapefile directement utilisable dans le SIG de votre choix.
+![Ouverture du terminal](images/sortie.png)
 
 ### Outil de Vérification de la Qualité
 Un outil tools.py est disponible pour vérifier la qualité de vos superpositions.
@@ -46,5 +47,13 @@ Assurez-vous d'avoir préalablement défini le chemin de sortie de l'application
 Bonne navigation et bon traitement de vos images !
 
 ### Partie Edition d'image
-Cet outil est disponible dans la barre header en haut de l'application sous le bouton "Editeur d'images".
+![Ouverture du terminal](images/edit.PNG)
+Cet outil est disponible dans la barre header en haut de l'application sous le bouton "Editeur d'images". 
+Vous pouvez importer autant d'image que vous souhaiter et pour chacune : 
+* Modifier la luminosité
+* Modifier la transparence
+* Modifier l'inclinaison horizontale et verticale
+* Déplacer l'image
+* Agrandir ou diminuer la taille de l'image
+* Modifier le claque de l'image
 
