@@ -32,8 +32,7 @@ def extract_match_points(df):
     pts_target = df[['x1', 'y1']].values.astype(np.float32)
     pts_query = df[['x2', 'y2']].values.astype(np.float32)
 
-    print("Points cibles (target) :", pts_target)
-    print("Points requête (query) :", pts_query)
+
     
     return pts_target, pts_query
 
@@ -74,7 +73,7 @@ def apply_homography(pts_target, pts_query, query_img_path, target_img_path, out
     # Sauvegarde de l'image transformée
     output_img_path = os.path.join(output_path, "output_transformed_image.png")
     cv2.imwrite(output_img_path, transformed_image)
-    print(f"Image enregistrée sous : {output_img_path}")
+    
     
     # Copier le fichier .aux.xml pour conserver le géoréférencement
     aux_file_path = target_img_path + ".aux.xml"
@@ -91,13 +90,15 @@ def apply_homography(pts_target, pts_query, query_img_path, target_img_path, out
     projection = ds.GetProjection()
     
     # Conversion des coordonnées en pixels vers coordonnées géographiques
-    #points = appel_process_image(query_img_path, output_path, type)# REMMETRE QUAND ON AURA UNE BONNE SEGMENTATION
-
-    points= [(1,2),(3,4),(5,6),(7,8)]
+    points = appel_process_image(query_img_path, output_path, type)
+  
+    #points= [(1,2),(3,4),(5,6),(7,8)] for debugging
     points_array = np.array(points, dtype=np.float32)
+
     points_transformed = cv2.perspectiveTransform(points_array[None, :, :], H)[0]
+
+
     geo_points = [pixel_to_geo(pt[0], pt[1], geo_transform) for pt in points_transformed]
-    
     # Création du GeoDataFrame
     gdf = gpd.GeoDataFrame(geometry=[LineString(geo_points) for x, y in geo_points], crs=projection)
     
@@ -107,13 +108,12 @@ def apply_homography(pts_target, pts_query, query_img_path, target_img_path, out
     shapefile_path = os.path.join(shapefile_directory, "points_transformed_geo.shp")
     gdf.to_file(shapefile_path)
     
-    print("Coordonnées géographiques des points enregistrées :")
-    print(gdf)
+
     print(f"Shapefile enregistré sous : {shapefile_path}")
 
 
 if __name__ == "__main__":
-    query_img_path = "output_flask/image_1/test_basse_def_2.png"
+    query_img_path = "output_flask/image_1/test_basse_def_1.png"
     target_img_path = "output_flask/image_1/crop.png"
     output_path = "output"
     

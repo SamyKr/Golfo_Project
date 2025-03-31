@@ -1,32 +1,70 @@
+########################################################################################################################
+##################################################### Importations #####################################################
+########################################################################################################################
 import os
-import cv2
-import os
-import cv2
 import numpy as np
-import time
-from skimage.io import imread, imsave, imshow, show
+from skimage.io import imread, imsave
 from skimage.measure import find_contours
-from skimage.morphology import binary_erosion
+from skimage.morphology import binary_erosion, binary_closing, binary_opening, disk
 from skimage.color import label2rgb, rgb2hsv
 from skimage.segmentation import slic
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
 
 
+########################################################################################################################
+####################################################### Fonctions ######################################################
+########################################################################################################################
+
+####################################################### Générales ######################################################
 def convert_arrays_to_tuples(contours):
+    '''
+    Cette fonction convertie une liste de liste en une liste de tuple
+    
+    Entrée :
+        - contours : list
+    
+    Sortie :
+        - list
+    '''
+    
     return [(int(x), int(y)) for x, y in map(tuple, contours)]
 
 
-
-def appel_process_image(image_path, outpout_folder, image_type):
+def appel_process_image(image_path, output_folder, image_type):
+    '''
+    Cette fonction renvoie le bon algorithme de classification en fonction du type de littoral renseigné
+    
+    Entrée :
+        - image path : string
+        - output_folder : string
+        - image_type : string
+    
+    Sortie :
+        - list
+    '''
+    
     if image_type == 'roche':
-        return convert_arrays_to_tuples(process_image_roche(image_path, outpout_folder, n_segments=650000, compactness=10, window_size=3))
+        return convert_arrays_to_tuples(process_image_roche(image_path, output_folder, n_segments=50000, compactness=10, window_size=3))
     elif image_type == 'sable':
-        return convert_arrays_to_tuples(process_image_sable(image_path, outpout_folder, n_segments=15000, compactness=10, window_size=3))
+        return convert_arrays_to_tuples(kmeans(image_path, output_folder, n_clusters=2, n_init=15, init='k-means++', max_iter=300, tol=1e-4, min_contour_length=1000))
     else:
         print("Le type de l'image a été mal renseigné")
         return None
+    
+################################################### Littoral rocheux ###################################################
 
 def detect_blue(image):
-    """Détecte uniquement les pixels de bleu et crée un masque binaire."""
+    '''
+    Cette fonction detecte les zones bleues et forme un masque binaire
+    
+    Entrée :
+        - image : ndarray
+        
+    Sortie :
+        - ndarray
+    '''
+    
     hsv = rgb2hsv(image)
     
     blue_mask = (hsv[:, :, 0] >= 0.5) & (hsv[:, :, 0] <= 0.7)
@@ -36,7 +74,16 @@ def detect_blue(image):
     return binary_erosion(blue_mask)
 
 def detect_brown(image):
-    """Détecte uniquement les pixels de couleur marron et crée un masque binaire."""
+    '''
+    Cette fonction detecte les zones marron et forme un masque binaire
+    
+    Entrée :
+        - image : ndarray
+        
+    Sortie :
+        - ndarray
+    '''
+    
     hsv = rgb2hsv(image)
     
     brown_mask = (hsv[:, :, 0] >= 0.05) & (hsv[:, :, 0] <= 0.12)
@@ -46,107 +93,42 @@ def detect_brown(image):
     return brown_mask
 
 def remove_closed_contours(contours, threshold=5):
+    '''
+    Cette fonction permet de filtrer les contours fermés dans une liste de contours
+    
+    Entrée :
+        - contours : list
+        
+    Sortie :
+        - filtered_contours : list
+    '''
+    
     filtered_contours = []
     for contour in contours:
         if np.linalg.norm(contour[0] - contour[-1]) > threshold:
             filtered_contours.append(contour)
     return filtered_contours
 
-def process_image_sable(image_path, outpout_folder, n_segments=15000, compactness=10, window_size=3, blue_area_threshold=300):
-    print("Démarrage du processus de segmentation de l'image...")
+def process_image_roche(image_path, output_folder, n_segments=5000, compactness=10, window_size=3):
+    '''
+    Cette fonction permet de trouver la ligne de côte pour un littoral rocheux
     
-    start_time = time.time()
+    Entrée :
+        - image_path : string
+        - output_folder : string
     
+    Sortie :
+        - valid_contours : list
+    '''
     image = imread(image_path)
-    print(f"Image chargée: {image_path}")
     
-    print("Applique SLIC pour la segmentation des superpixels...")
+    # Applique SLIC pour la segmentation des superpixels
     segments = slic(image, n_segments=n_segments, compactness=compactness, start_label=1)
     
-    print("Segmentation effectuée, traitement de l'image...")
+    # Traitement de l'image
     segmented_image = label2rgb(segments, image, kind='avg')
     
-    print("Détection des zones bleues et marron...")
-    blue_mask = detect_blue(segmented_image)
-    brown_mask = detect_brown(segmented_image)
-
-    other_mask = ~(blue_mask | brown_mask)
-
-    boundary = (blue_mask.astype(int) - brown_mask.astype(int)) + (brown_mask.astype(int) - other_mask)
-
-    print("Recherche des contours...")
-    contours = find_contours(boundary, level=0)
-    contours = remove_closed_contours(contours)
-    
-    print(f"{len(contours)} contours trouvés.")
-    
-    blue_contours = []
-    
-    # Trouver les grandes zones bleues basées sur l'aire des contours
-    for contour in contours:
-        # Convertir les coordonnées des contours en int32 (pour OpenCV)
-        contour_int = np.array(contour, dtype=np.int32)
-        
-        # Vérifier si l'aire du contour dépasse le seuil
-        area = cv2.contourArea(contour_int)
-        if area > blue_area_threshold:  # Seuil de l'aire pour considérer une zone comme grande
-            blue_contours.append(contour_int)
-    
-    if blue_contours:
-        print(f"{len(blue_contours)} grandes zones bleues détectées.")
-        
-        # Sélectionner le contour le plus bas
-        lowest_contour = None
-        lowest_y = -1
-
-        for contour in blue_contours:
-            # Trouver le point le plus bas du contour
-            min_y = np.min(contour[:, 0])  # Récupère le minimum des y pour chaque contour
-            if min_y > lowest_y:
-                lowest_y = min_y
-                lowest_contour = contour
-
-        # Dessiner le contour le plus bas
-        image_with_contours = image.copy()
-        
-        # Inverser l'ordre des coordonnées (ligne, colonne) -> (x, y)
-        contour_swapped = lowest_contour[:, [1, 0]]  # Inverse (colonne, ligne) -> (x, y)
-        
-        # Dessiner le contour dans l'ordre normal en tant que segment ouvert
-        cv2.polylines(image_with_contours, [contour_swapped], isClosed=False, color=(255, 0, 0), thickness=3)
-        # Dessiner le contour dans l'ordre inversé pour l'effet aller-retour
-        cv2.polylines(image_with_contours, [contour_swapped[::-1]], isClosed=False, color=(255, 0, 0), thickness=3)
-        
-        output_image = os.path.join(outpout_folder, os.path.basename(image_path))
-        output_image = os.path.basename(image_path)
-        outpout_image= os.path.join(outpout_folder, output_image)
-
-        imsave(outpout_image, image_with_contours)
-    
-    else:
-        print("Aucune grande zone bleue détectée.")
-    
-    end_time = time.time()
-    execution_time = (end_time - start_time) / 60
-    print(f"Temps d'exécution du traitement: {execution_time:.4f} minutes.")
-    
-    return contour_swapped
-
-def process_image_roche(image_path, outpout_folder, n_segments=650000, compactness=10, window_size=3):
-    print("Démarrage du processus de segmentation de l'image...")
-    
-    start_time = time.time()
-    
-    image = imread(image_path)
-    print(f"Image chargée: {image_path}")
-    
-    print("Applique SLIC pour la segmentation des superpixels...")
-    segments = slic(image, n_segments=n_segments, compactness=compactness, start_label=1)
-    
-    print("Segmentation effectuée, traitement de l'image...")
-    segmented_image = label2rgb(segments, image, kind='avg')
-    
-    print("Détection des zones bleues et marron...")
+    # Détection des zones bleues et marron
     blue_mask = detect_blue(segmented_image)
     brown_mask = detect_brown(segmented_image)
 
@@ -154,42 +136,91 @@ def process_image_roche(image_path, outpout_folder, n_segments=650000, compactne
 
     boundary = (blue_mask.astype(int) - brown_mask.astype(int)) + (brown_mask.astype(int) - other_mask.astype(int))
 
-    print("Recherche des contours...")
+    # Recherche des contours
     contours = find_contours(boundary, level=0)
     contours = remove_closed_contours(contours)
-    
-    print(f"{len(contours)} contours trouvés.")
 
     if contours:
+        # On trouve le plus grand contour
         largest_contour = max(contours, key=len)
-        print("Le plus grand contour trouvé, dessin de la polyligne...")
 
-        # Sauvegarder l'image résultante avec les contours dessinés
+        # Sauvegarder l'image avec les contours dessinés
         image_with_contour = image.copy()
         for contour in largest_contour:
-            image_with_contour[int(contour[0]), int(contour[1])] = [255, 0, 0]  # Dessiner en rouge
-            
+            image_with_contour[int(contour[0]), int(contour[1])] = [255, 0, 0]
+        
+        # Nom et chemin du fichier de sortie
         output_image = os.path.basename(image_path)
-        outpout_image= os.path.join(outpout_folder, output_image)
+        outpout_image= os.path.join(output_folder, output_image)
 
+        # Enregistrement de l'image
         imsave(outpout_image, image_with_contour)
-    
-    if image_with_contour is None:
-        print("Aucun contour trouvé, retourner une image vide ou l'originale.")
+    # On retourne la ligne de côte
+    return contours[0]
 
-    end_time = time.time()
-    execution_time = (end_time - start_time) / 60
-    print(f"Temps d'exécution du traitement: {execution_time:.4f} minutes.")
-    
-    return contours
+################################################## Littoral sablonneux ##################################################
 
+def calculate_contour_length(contour):
+    """Calcule la longueur d'un contour."""
+    return np.sum(np.sqrt(np.sum(np.diff(contour, axis=0) ** 2, axis=1)))
 
+def kmeans(image_path, output_folder, n_clusters=2, n_init=15, init='k-means++', max_iter=300, tol=1e-4, min_contour_length=1000):
+    '''
+    Cette fonction permet de trouver la ligne de côte pour un littoral sablonneux.
+
+    Entrée :
+        - image_path : string (chemin de l'image)
+        - output_folder : string (dossier où enregistrer l'image classifiée)
+
+    Sortie :
+        - valid_contours_pixels : liste de tuples (x, y) des pixels constituant le contour détecté
+    '''
+     
+    # Charger l'image
+    image = imread(image_path)
+
+    # Appliquer K-Means (sans changer la taille de l’image)
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=n_init, init=init, max_iter=max_iter, tol=tol)
+    labels = kmeans.fit_predict(image.reshape((-1, 3))).reshape(image.shape[:2])
+
+    # Filtrage du bruit
+    filtered_labels = binary_closing(labels, disk(10))
+    filtered_labels = binary_opening(filtered_labels, disk(3))
+
+    # Détection des contours
+    contours = find_contours(filtered_labels, level=0.5)
+
+    # Filtrer les contours trop courts
+    valid_contours = [contour for contour in contours if calculate_contour_length(contour) >= min_contour_length]
+
+    # Garder seulement le contour le plus bas
+    if len(valid_contours) > 1:
+        contour_heights = [np.mean(contour[:, 0]) for contour in valid_contours]
+        lowest_contour_index = np.argmax(contour_heights)
+        valid_contours = [valid_contours[lowest_contour_index]]
+
+    # Convertir en indices de pixels entiers (coordonnées x, y)
+    valid_contours_pixels = [(int(point[1]), int(point[0])) for point in valid_contours[0]]
+
+    # Affichage du résultat
+    plt.imshow(image)  
+    for contour in valid_contours:
+        plt.plot(contour[:, 1], contour[:, 0], color='red', linewidth=2)  
+    plt.axis('off')
+
+    # Génération du nom du fichier de sortie
+    name, ext = os.path.splitext(os.path.basename(image_path))  
+    output_image_name = f"{name}_classif{ext}"  
+    output_image_path = os.path.join(output_folder, output_image_name)
+
+    # Enregistrement du résultat
+    plt.savefig(output_image_path, bbox_inches='tight', pad_inches=0)  
+    plt.close()
+
+    return valid_contours_pixels  # Retourne la liste des pixels du contour détecté
 
 
 if __name__== "__main__":
 
-   
-
-    a=appel_process_image("test_basse_def.jpg", 'test', 'sable')
-    print(a)
-
+    appel_process_image("test_basse_def.jpg", 'test', 'sable')
+  

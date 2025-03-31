@@ -1,0 +1,22 @@
+name: PDI
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9 
+  - numpy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  - scikit-image
+  - geopandas
+  - rasterio
+  - jupyterlab
+  - opencv
+  - pyyaml
+  - gdal
+  - urllib3
+  - flask
+  - pillow
+  - flask-socketio
+  
