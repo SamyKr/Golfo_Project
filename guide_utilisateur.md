@@ -16,6 +16,7 @@ python app.py
 * **Méthode 2** : copiez le lien et collez-le dans la barre d'adresse de votre navigateur web préféré.
 
 ### Configuration des données utilisateur
+![Ouverture du terminal](images/terminal.png)
 Avant de lancer le traitement, vous devez fournir trois informations essentielles :
 1.	**Insérer des images** : les images doivent contenir des coordonnées dans leurs métadonnées. Ces coordonnées doivent être au format WGS84, qui est la norme attendue pour ce type d'appareil (*1).
 2.	**Fournir le chemin vers le dossier des dalles** : nous garantissons le bon fonctionnement avec les dalles Pléiades fournies. Il est possible que certaines générations de dalles aient des versions différentes. Pour garantir un fonctionnement optimal, utilisez les dalles fournies.
@@ -43,3 +44,7 @@ Un outil tools.py est disponible pour vérifier la qualité de vos superposition
 * Si la qualité n'est pas satisfaisante, cliquez sur **Pass**.
 Assurez-vous d'avoir préalablement défini le chemin de sortie de l'application web. Un nouveau dossier de sortie contenant les images filtrées sera alors généré.
 Bonne navigation et bon traitement de vos images !
+
+### Partie Edition d'image
+Cet outil est disponible dans la barre header en haut de l'application sous le bouton "Editeur d'images".
+
