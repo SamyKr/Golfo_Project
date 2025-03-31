@@ -196,40 +196,44 @@ def kmeans(image_path, output_folder, n_clusters=2, n_init=15, init='k-means++',
     # Redimensionner l'image pour l'algorithme de clustering
     pixels = image.reshape(-1, 3)
 
-    # Appliquer K-Means
+    # Appliquer K-Means avec les paramètres spécifiés
     kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=n_init, init=init, max_iter=max_iter, tol=tol)
     labels = kmeans.fit_predict(pixels).reshape(image.shape[:2])
 
-    # Filtrage pour réduire le bruit
+    # Filtrer pour réduire le bruit
     filtered_labels = binary_closing(labels, disk(10))
     filtered_labels = binary_opening(filtered_labels, disk(3))
 
+    # Seuil de taille pour les petites régions
+    new_labels = filtered_labels.copy()
+
     # Détection des contours
-    contours = find_contours(filtered_labels, level=0.5)
+    contours = find_contours(new_labels, level=0.5)
 
-    # Filtrage des contours par longueur minimale
-    valid_contours = [
-        contour for contour in contours if calculate_contour_length(contour) >= min_contour_length
-    ]
+    # Appliquer le seuil de longueur (contours de longueur > 200 pixels)
+    valid_contours = []
+    for contour in contours:
+        contour_length = calculate_contour_length(contour)
+        if contour_length >= min_contour_length:
+            valid_contours.append(contour)
 
-    # Si plusieurs contours valides existent, on garde celui avec la moyenne de hauteur la plus basse
+    # Si plusieurs contours valides existent, garder le plus bas et le plus long
     if len(valid_contours) > 1:
+        # Calculer la coordonnée verticale moyenne pour chaque contour (pour choisir le plus bas)
         contour_heights = [np.mean(contour[:, 0]) for contour in valid_contours]
-        
-        # On isole le contour avec la moyenne la plus basse
-        lowest_contour_index = np.argmin(contour_heights)  
-        valid_contours = [valid_contours[lowest_contour_index]]
+        lowest_contour_index = np.argmax(contour_heights)  # Le contour avec la coordonnée moyenne la plus basse
+        valid_contours = [valid_contours[lowest_contour_index]]  # Garde seulement ce contour
 
-    # Traçage des contours en rouge
+    # Affichage de l'image originale avec les contours tracés en rouge
+    plt.imshow(image)  # Afficher l'image originale
     for contour in valid_contours:
-        plt.plot(contour[:, 1], contour[:, 0], color='red', linewidth=2)
-
+        plt.plot(contour[:, 1], contour[:, 0], color='red', linewidth=2)  # Tracer les contours en rouge
+    plt.axis('off')  # Masquer les axes
+    
     # Nom et chemin du fichier de sortie
     output_image_name = os.path.basename(image_path)
     output_image_path = os.path.join(output_folder, output_image_name)
 
-    # Cache les axes sur l'image et enregistre
-    plt.axis('off')  
     plt.savefig(output_image_path, bbox_inches='tight', pad_inches=0)  
     plt.close()
 
