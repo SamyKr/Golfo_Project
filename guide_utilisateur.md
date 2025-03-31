@@ -37,7 +37,7 @@ Ensuite, pour chaque image, vous pouvez choisir entre deux options :
 * **trait_de_cote.png** : image avec le trait de côte identifié en rouge par l'algorithme.
 * **keypoints.txt** : fichier contenant les points d'intérêt entre les deux images (utilisable pour d'autres méthodes d'exploration).
 * **Dossier shapefile** : contient un fichier shapefile directement utilisable dans le SIG de votre choix.
-![Ouverture du terminal](images/sortie.png)
+![Ouverture du terminal](images/sortie.PNG)
 
 ### Outil de Vérification de la Qualité
 Un outil tools.py est disponible pour vérifier la qualité de vos superpositions.
