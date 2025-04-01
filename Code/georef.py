@@ -14,9 +14,9 @@ from PyASIFT_2.asift import asift_main
 
 def extract_match_points(df):
     """
-    Lit un fichier CSV et extrait les colonnes x1, y1 pour pts_target et x2, y2 pour pts_query.
+    Lit un dataframe et extrait les colonnes x1, y1 pour pts_target et x2, y2 pour pts_query.
     
-    :param file: Fichier CSV sous forme de chemin ou d'objet fichier
+    :param df: Fichier dataframe 
     :return: Tuple (pts_target, pts_query)
     """
     
@@ -32,8 +32,6 @@ def extract_match_points(df):
     pts_target = df[['x1', 'y1']].values.astype(np.float32)
     pts_query = df[['x2', 'y2']].values.astype(np.float32)
 
-
-    
     return pts_target, pts_query
 
 
@@ -56,7 +54,7 @@ def apply_homography(pts_target, pts_query, query_img_path, target_img_path, out
     target_img = cv2.imread(target_img_path, cv2.IMREAD_UNCHANGED)
     height, width, _ = target_img.shape
     
-    # Ajouter un canal alpha si absent
+    # Ajouter un canal alpha si absent pour permettre d'afficher l'image transformer dans le même repère que l'orthoimage
     if query_img.shape[2] == 3:
         query_img = cv2.cvtColor(query_img, cv2.COLOR_BGR2BGRA)
     

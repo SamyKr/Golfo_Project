@@ -1,3 +1,7 @@
+########################################################################################################################
+##################################################### Importations #####################################################
+########################################################################################################################
+
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, url_for
 from flask_socketio import SocketIO, emit
 import os
@@ -109,7 +113,7 @@ def process_image():
         return jsonify({'error': 'Paramètres manquants pour le traitement', 'logs': logs}), 400
     
 
-
+    # Verifier si le fichier de sortie exsite sinon le crée
     if not os.path.exists(output_folder):
         try:
             os.makedirs(output_folder)
@@ -152,19 +156,24 @@ def process_image():
             logs.append(f"✅ Conversion de l'image {i} terminée")
             socketio.emit('log', {'message': f"✅ Conversion de l'image {i} terminée"})
 
-         
+# La ligne suivante permet de changer de détecteur après nos tests celui avec le meilleure résultat est le SIFT avevc FLANN         
 #:param detector_name: (sift|surf|orb|akaze|brisk)[-flann] Detector type to use, default as SIFT. Add '-flann' to use FLANN matching.
+
             socketio.emit('log', {'message': f"🟡 Recherche points de correspondance ... "}) 
             points_match=asift_main(crop_png, image_path, "sift-flann",image_output_folder  )
             socketio.emit('log', {'message': f"✅ {points_match.shape[0]} points de correspondance trouvés ! "}) 
             
+            # On récupère les points de correspondance
             pts_target,pts_query=extract_match_points(points_match)
             logs.append(f"🟡 Application de l'homographie pour l'image {i}")
             socketio.emit('log', {'message': f"🟡🟡 Classification et Homographie pour l'image {i} ... "})
+
+            # Application de l'homographie et de la classification
             apply_homography(pts_target,pts_query, query_img_path=image_path, target_img_path=crop_png, output_path=image_output_folder,type=image_type)
             logs.append(f"✅ Homographie appliquée pour l'image {i}")
             socketio.emit('log', {'message': f"✅ Homographie appliquée pour l'image {i}"})
 
+            # Enregistrement de l'image traitée
             processed_image_url = os.path.join(image_output_folder, "crop.png")
             logs.append(f"✅ Image {i} traitée avec succès, disponible à : {processed_image_url}")
             socketio.emit('log', {'message': f"✅✅✅ Image {i} traitée avec succès, disponible dans le dossier de sortie !"})

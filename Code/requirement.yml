@@ -1,4 +1,4 @@
-name: PDI
+name: golfo
 channels:
   - conda-forge
   - defaults

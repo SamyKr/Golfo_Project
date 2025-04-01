@@ -161,15 +161,7 @@ def process_image_roche(image_path, output_folder, n_segments=5000, compactness=
 ################################################## Littoral sablonneux ##################################################
 
 def calculate_contour_length(contour):
-    '''
-    Cette fonction calcule la longueur d'un contour
-
-    Entrée :
-        - contour : ndarray
-
-    Sortie :
-        - float
-    '''
+    """Calcule la longueur d'un contour."""
     return np.sum(np.sqrt(np.sum(np.diff(contour, axis=0) ** 2, axis=1)))
 
 def kmeans(image_path, output_folder, n_clusters=2, n_init=15, init='k-means++', max_iter=300, tol=1e-4, min_contour_length=1000):
