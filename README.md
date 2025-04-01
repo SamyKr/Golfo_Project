@@ -13,7 +13,7 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants :
 Avant toute installation, commencez par cloner le dépôt GitHub :
 
 ```bash
-    git clone https://github.com/VOTRE_REPO/GOLFO.git
+    git clone https://github.com/SamyKr/Golfo_Project.git
     cd GOLFO
 ```
 
