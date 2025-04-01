@@ -1,4 +1,4 @@
-# 🌍 GOLFO - README🚀
+# 🌍 GOLFO - README 🚀
 
 ## ✨ Qu'est-ce que GOLFO ?
 GOLFO est une application web permettant d'extraire automatiquement le trait de côte à partir d'images obliques. Elle utilise des techniques avancées de vision par ordinateur et de géomatique pour fournir des résultats précis et exploitables dans un SIG.
