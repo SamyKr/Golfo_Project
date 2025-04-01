@@ -1,4 +1,4 @@
-# 🌍 GOLFO - Manuel d'Utilisation 🚀
+# 🌍 GOLFO - README🚀
 
 ## ✨ Qu'est-ce que GOLFO ?
 GOLFO est une application web permettant d'extraire automatiquement le trait de côte à partir d'images obliques. Elle utilise des techniques avancées de vision par ordinateur et de géomatique pour fournir des résultats précis et exploitables dans un SIG.
@@ -17,11 +17,11 @@ Avant toute installation, commencez par cloner le dépôt GitHub :
     cd GOLFO
 ```
 
-## 💅 Installation
+## 💻 Installation
 
-1. ** Téléchargez et extrayez** l'application sur votre ordinateur si cela n'est pas encore fait.
-2. ** Ouvrez un terminal ou une invite de commande** dans le dossier contenant le fichier `app.py`.
-3. ** Installez les dépendances** en exécutant :
+1. **Téléchargez et extrayez** l'application sur votre ordinateur si cela n'est pas encore fait.
+2. **Ouvrez un terminal ou une invite de commande** dans le dossier contenant le fichier `app.py`.
+3. **Installez les dépendances** en exécutant :
    ```bash
    conda env create -f requirements.yaml
    conda activate golfo
@@ -65,25 +65,25 @@ Une fois ces étapes complétées, chargez vos données. Si aucune erreur n'est 
 
 Pour chaque image, vous pouvez choisir entre deux options de traitement :
 
-- 🦟 **Roche** : Algorithme plus long (environ 30 minutes par image). Utilise la segmentation SLIC couplée à une classification colorimétrique.
+- ⛰️ **Roche** : Algorithme plus long (environ 30 minutes par image). Utilise la segmentation SLIC couplée à une classification colorimétrique.
 - 🏖️ **Sable** : Algorithme plus rapide (environ 40 secondes par image). Utilise l'algorithme K-means pour la classification des pixels.
 
 ## 📊 Résultats en Sortie
 
 À la fin du traitement, plusieurs fichiers seront générés dans le dossier de sortie :
 
-- 🌏 `crop.png` : Portion de dalle Pléiades correspondant à l'image traitée.
-- 🔄 `transformed_image.png` : Superposition entre la photo oblique et l'image aérienne.
-- 🔴 `trait_de_cote.png` : Image avec le trait de côte identifié en rouge.
-- 📌 `keypoints.txt` : Points d'intérêt entre les images (utilisable pour d'autres analyses).
-- 🌍 **Dossier shapefile** : Contient un fichier shapefile utilisable dans un SIG.
-- 📷 **Nom_Image_Classif** : Image oblique avec le trait de côte identifié.
+-  `crop.png` : Portion de dalle Pléiades correspondant à l'image traitée.
+-  `transformed_image.png` : Superposition entre la photo oblique et l'image aérienne.
+-  `trait_de_cote.png` : Image avec le trait de côte identifié en rouge.
+-  `keypoints.txt` : Points d'intérêt entre les images (utilisable pour d'autres analyses).
+-  **Dossier shapefile** : Contient un fichier shapefile du trait de côte géoreferencé.
+-  **Nom_Image_Classif** : Image oblique avec le trait de côte identifié.
 
 ## 🎨 Édition d'Image
 
 L'éditeur d'images est accessible via le bouton **"Éditeur d'images"** dans la barre de navigation.
 
-🎨 **Fonctionnalités disponibles** :
+ **Fonctionnalités disponibles** :
 
 -  Modifier la luminosité
 -  Modifier la transparence
