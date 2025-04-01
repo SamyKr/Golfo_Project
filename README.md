@@ -19,9 +19,9 @@ Avant toute installation, commencez par cloner le dépôt GitHub :
 
 ## 💅 Installation
 
-1. ** Téléchargez et extrayez** l'application sur votre ordinateur si cela n'est pas encore fait.
-2. ** Ouvrez un terminal ou une invite de commande** dans le dossier contenant le fichier `app.py`.
-3. ** Installez les dépendances** en exécutant :
+1. **Téléchargez et extrayez** l'application sur votre ordinateur si cela n'est pas encore fait.
+2. **Ouvrez un terminal ou une invite de commande** dans le dossier contenant le fichier `app.py`.
+3. **Installez les dépendances** en exécutant :
    ```bash
    conda env create -f requirements.yaml
    conda activate golfo
@@ -30,9 +30,10 @@ Avant toute installation, commencez par cloner le dépôt GitHub :
    ```bash
    python app.py
    ```
-5.  Une fois l'application démarrée, une invite de commande affichera un lien.
-6. ⏳ **Patientez** quelques secondes et la page web s'ouvrira automatiquement.
-7. *(💡 Optionnel)* Vous pouvez reconfigurer le fichier `application.bat` à l'aide d'un éditeur de texte pour rediriger vers votre `python.exe` et le chemin d'accès à `app.py` afin de lancer en un seul clic.
+5. Créez un dossier **"Uploads"** dans la racine du projet si cela n'est pas déjà fait. Assurez-vous que ce dossier existe également dans le répertoire Code.
+6. Une fois l'application démarrée, une invite de commande affichera un lien.
+7. ⏳ **Patientez** quelques secondes et la page web s'ouvrira automatiquement.
+8. *(💡 Optionnel)* Vous pouvez reconfigurer le fichier `application.bat` à l'aide d'un éditeur de texte pour rediriger vers votre `python.exe` et le chemin d'accès à `app.py` afin de lancer en un seul clic.
 
 ## 🛠️ Modules Principaux
 
