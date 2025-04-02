@@ -17,7 +17,7 @@ Avant toute installation, commencez par cloner le dépôt GitHub :
     cd GOLFO
 ```
 
-## 💅 Installation
+## 🤖 Installation
 
 1. **Téléchargez et extrayez** l'application sur votre ordinateur si cela n'est pas encore fait.
 2. **Ouvrez un terminal ou une invite de commande** dans le dossier contenant le fichier `app.py`.
@@ -30,20 +30,19 @@ Avant toute installation, commencez par cloner le dépôt GitHub :
    ```bash
    python app.py
    ```
-5. Créez un dossier **"Uploads"** dans la racine du projet si cela n'est pas déjà fait. Assurez-vous que ce dossier existe également dans le répertoire Code.
-6. Une fois l'application démarrée, une invite de commande affichera un lien.
-7. ⏳ **Patientez** quelques secondes et la page web s'ouvrira automatiquement.
-8. *(💡 Optionnel)* Vous pouvez reconfigurer le fichier `application.bat` à l'aide d'un éditeur de texte pour rediriger vers votre `python.exe` et le chemin d'accès à `app.py` afin de lancer en un seul clic.
+5.  Une fois l'application démarrée, une invite de commande affichera un lien.
+6. ⏳ **Patientez** quelques secondes et la page web s'ouvrira automatiquement.
+7. *(💡 Optionnel)* Vous pouvez reconfigurer le fichier `application.bat` à l'aide d'un éditeur de texte pour rediriger vers votre `python.exe` et le chemin d'accès à `app.py` afin de lancer en un seul clic.
 
 ## 🛠️ Modules Principaux
 
 L'application GOLFO repose sur plusieurs bibliothèques essentielles :
 
-- 🖥️ **Flask** : Utilisé pour créer l'interface web et gérer les interactions avec l'utilisateur.
-- 🌍 **OpenCV** : Utilisé pour le traitement d'image, notamment la détection et l'alignement des images.
-- 📸 **Scikit-Image** : Fournit des outils avancés pour l'analyse et la transformation des images. Utilisé pour les algorithmes de détection du trait de côte.
-- 📊 **GDAL** : Utilisé pour manipuler les fichiers géospatiaux, notamment pour lire et écrire des fichiers raster et vecteur.
-- 🔍 **PyASIFT** : Implémentation de l'algorithme ASIFT pour la détection robuste des points d'intérêt dans les images. Code disponible ici : [PyASIFT](https://github.com/Mars-Rover-Localization/PyASIFT.git). L'algorithme ASIFT a été développé par **Zhou, Lang, Zhang, Zhitai et Wang, Hongliang**.
+-  **Flask** : Utilisé pour créer l'interface web et gérer les interactions avec l'utilisateur.
+-  **OpenCV** : Utilisé pour le traitement d'image, notamment la détection et l'alignement des images.
+-  **Scikit-Image** : Fournit des outils avancés pour l'analyse et la transformation des images. Utilisé pour les algorithmes de détection du trait de côte.
+-  **GDAL** : Utilisé pour manipuler les fichiers géospatiaux, notamment pour lire et écrire des fichiers raster et vecteur.
+-  **PyASIFT** : Implémentation de l'algorithme ASIFT pour la détection robuste des points d'intérêt dans les images. Code disponible ici : [PyASIFT](https://github.com/Mars-Rover-Localization/PyASIFT.git). L'algorithme ASIFT a été développé par **Zhou, Lang, Zhang, Zhitai et Wang, Hongliang**.
 
 ## 🌟 Configuration des données utilisateur
 
@@ -66,19 +65,19 @@ Une fois ces étapes complétées, chargez vos données. Si aucune erreur n'est 
 
 Pour chaque image, vous pouvez choisir entre deux options de traitement :
 
-- 🦟 **Roche** : Algorithme plus long (environ 30 minutes par image). Utilise la segmentation SLIC couplée à une classification colorimétrique.
+- ⛰️ **Roche** : Algorithme plus long (environ 30 minutes par image). Utilise la segmentation SLIC couplée à une classification colorimétrique.
 - 🏖️ **Sable** : Algorithme plus rapide (environ 40 secondes par image). Utilise l'algorithme K-means pour la classification des pixels.
 
 ## 📊 Résultats en Sortie
 
 À la fin du traitement, plusieurs fichiers seront générés dans le dossier de sortie :
 
-- 🌏 `crop.png` : Portion de dalle Pléiades correspondant à l'image traitée.
-- 🔄 `transformed_image.png` : Superposition entre la photo oblique et l'image aérienne.
-- 🔴 `trait_de_cote.png` : Image avec le trait de côte identifié en rouge.
-- 📌 `keypoints.txt` : Points d'intérêt entre les images (utilisable pour d'autres analyses).
-- 🌍 **Dossier shapefile** : Contient un fichier shapefile utilisable dans un SIG.
-- 📷 **Nom_Image_Classif** : Image oblique avec le trait de côte identifié.
+-  `crop.png` : Portion de dalle Pléiades correspondant à l'image traitée.
+-  `transformed_image.png` : Superposition entre la photo oblique et l'image aérienne.
+-  `trait_de_cote.png` : Image avec le trait de côte identifié en rouge.
+-  `keypoints.txt` : Points d'intérêt entre les images (utilisable pour d'autres analyses).
+-  **Dossier shapefile** : Contient un fichier shapefile utilisable dans un SIG.
+-  **Nom_Image_Classif** : Image oblique avec le trait de côte identifié.
 
 ## 🎨 Édition d'Image
 
